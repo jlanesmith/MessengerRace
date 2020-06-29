@@ -50,7 +50,6 @@ def parseConvo(data):
     iterDate = startDate # Iterate through everyday until the final message has been read, or we reach the current day
     messageTotalsByDate = [] # Array showing number of total messages at each day
     messageCounter = 0 # Increments each time we read another message
-    print(len(messages))
     while (iterDate <= nowDate and messageCounter < len(messages)):
         while (messageCounter < len(messages) and getDayFromTime(messages[messageCounter]['timestamp_ms']) == iterDate):
             messageCounter += 1
