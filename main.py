@@ -85,7 +85,7 @@ for convoData in datesAndTotals:
     csvData.append(csvRow)
 
 # Write to CSV
-with open("messengerRace.csv", "w", newline="") as f:
+with open("messengerRace.csv", "w", encoding="utf-8", newline="") as f:
     writer = csv.writer(f)
     writer.writerows(csvData)
 
