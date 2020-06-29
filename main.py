@@ -14,6 +14,7 @@ from datetime import datetime, timedelta
 
 folders = os.listdir("C://Users/jlane/Desktop/Untracked Files/messages/inbox")
 
+groupByWeek = True # Whether to have a column for each week, vs everyday
 globalStartDate = None # The date of the earliest message out of every conversation
 nowDate = datetime.now().date() # The current date
 datesAndTotals = [] # A list of json objects, containing the name, startDate, and messageTotals of each convo
@@ -22,7 +23,7 @@ csvData = [[]] # 2D array to be sent to the final CSV
 # Get date from timestamp
 def getDayFromTime(time):
     day = datetime.fromtimestamp(int(time/1000))
-    return day.date()
+    return day.date() - (timedelta(days=day.weekday() if groupByWeek else 0)) # Return day of the beginning of the week if groupByWeek
 
 # Parse conversation to produce a relevant json object
 def parseConvo(data):
@@ -54,7 +55,7 @@ def parseConvo(data):
         while (messageCounter < len(messages) and getDayFromTime(messages[messageCounter]['timestamp_ms']) == iterDate):
             messageCounter += 1
         messageTotalsByDate.append(messageCounter)
-        iterDate += timedelta(days=1)
+        iterDate += timedelta(days=(7 if groupByWeek else 1)) # Increment date by 1 or 7
     return {
         "name": data['title'],
         "startDate": startDate,
@@ -73,13 +74,13 @@ iterDate = globalStartDate
 csvData[0].append("") # Set csvData[0][0] to be empty
 while (iterDate <= nowDate): # For each date from the globalStartDate until now
     csvData[0].append(iterDate) # Append date
-    iterDate += timedelta(days=1) # Increment date by 1
+    iterDate += timedelta(days=(7 if groupByWeek else 1)) # Increment date by 1 or 7
 
 # Make rows for each conversation
 for convoData in datesAndTotals:
     # Shift conversations so that they all align correctly
-    shift = (convoData['startDate'] - globalStartDate).days + 1 # Shift all days by at least one so the first column is 0
-    csvRow = [0] * shift + convoData['messageTotals'] # Insert 0s initally, followed by the actual message totals
+    shift = (convoData['startDate'] - globalStartDate).days/(7 if groupByWeek else 1) + 1 # Shift all days by at least one so the first column is 0
+    csvRow = [0] * int(shift) + convoData['messageTotals'] # Insert 0s initally, followed by the actual message totals
     csvRow.insert(0, convoData["name"]) # Insert name of person in conversation
     csvData.append(csvRow)
 
