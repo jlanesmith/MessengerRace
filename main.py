@@ -15,6 +15,10 @@ from datetime import datetime, timedelta
 folders = os.listdir("C://Users/jlane/Desktop/Untracked Files/messages/inbox")
 
 groupByWeek = True # Whether to have a column for each week, vs everyday
+isMovingAverage = True # Whether to implement a moving average
+movingAveCount = 104 # How many columns to include in calculating the moving average
+withGroupChats = False # Whether to include group chats
+
 globalStartDate = None # The date of the earliest message out of every conversation
 nowDate = datetime.now().date() # The current date
 datesAndTotals = [] # A list of json objects, containing the name, startDate, and messageTotals of each convo
@@ -51,10 +55,15 @@ def parseConvo(data):
     iterDate = startDate # Iterate through everyday until the final message has been read, or we reach the current day
     messageTotalsByDate = [] # Array showing number of total messages at each day
     messageCounter = 0 # Increments each time we read another message
+    movAgeMessageCounter = 0 # Increments each time we read another message which is "expired" given a moving average
     while (iterDate <= nowDate and messageCounter < len(messages)):
         while (messageCounter < len(messages) and getDayFromTime(messages[messageCounter]['timestamp_ms']) == iterDate):
             messageCounter += 1
-        messageTotalsByDate.append(messageCounter)
+        while (isMovingAverage and 
+            getDayFromTime(messages[movAgeMessageCounter]['timestamp_ms']) == 
+            iterDate - timedelta(days=(7 if groupByWeek else 1)*movingAveCount)):
+            movAgeMessageCounter += 1
+        messageTotalsByDate.append(messageCounter-movAgeMessageCounter)
         iterDate += timedelta(days=(7 if groupByWeek else 1)) # Increment date by 1 or 7
     return {
         "name": data['title'],
@@ -66,7 +75,7 @@ def parseConvo(data):
 for folder in folders:
     with open(f'C://Users/jlane/Desktop/Untracked Files/messages/inbox/{folder}/message_1.json') as json_file:
         data = json.load(json_file) # Load the data
-        if len(data['participants']) == 2: # Only for individual conversations (no group chats)
+        if len(data['participants']) == 2 or withGroupChats: # Logic for including group chats or not
             datesAndTotals.append(parseConvo(data))
 
 # Make first row of CSV which is just dates
