@@ -12,10 +12,10 @@ To use this script, you must first download your messenger information from Face
 import os, json, csv
 from datetime import datetime, timedelta
 
-folders = os.listdir("C://Users/jlane/Desktop/Untracked Files/messages/inbox")
+folders = os.listdir("C://Users/jlane/Desktop/Untracked Files/Facebook Downloads/messages/inbox")
 
 groupByWeek = True # Whether to have a column for each week, vs everyday
-isMovingAverage = True # Whether to implement a moving average
+isMovingAverage = False # Whether to implement a moving average
 movingAveCount = 104 # How many columns to include in calculating the moving average
 withGroupChats = False # Whether to include group chats
 
@@ -38,7 +38,7 @@ def parseConvo(data):
     # If messageCount is 10000, there will be another message_#.json file
     messageFileNum = 2 # The number of the next message_#.json file, if it is read
     while messageCount >= 10000:
-        with open(f'C://Users/jlane/Desktop/Untracked Files/messages/inbox/{folder}/message_{messageFileNum}.json') as json_file:
+        with open(f'C://Users/jlane/Desktop/Untracked Files/Facebook Downloads/messages/inbox/{folder}/message_{messageFileNum}.json') as json_file:
             newData = json.load(json_file) # Load the data
             rawMessages = rawMessages + newData['messages'] # Put the data all together
             messageCount = len(newData['messages']) # Prepare to check if there's another message_#.json file
@@ -73,9 +73,9 @@ def parseConvo(data):
 
 # For each conversation
 for folder in folders:
-    with open(f'C://Users/jlane/Desktop/Untracked Files/messages/inbox/{folder}/message_1.json') as json_file:
+    with open(f'C://Users/jlane/Desktop/Untracked Files/Facebook Downloads/messages/inbox/{folder}/message_1.json') as json_file:
         data = json.load(json_file) # Load the data
-        if len(data['participants']) == 2 or withGroupChats: # Logic for including group chats or not
+        if (len(data['participants']) == 2) or withGroupChats: # Logic for including group chats or not
             datesAndTotals.append(parseConvo(data))
 
 # Make first row of CSV which is just dates
