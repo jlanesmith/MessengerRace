@@ -15,9 +15,9 @@ from datetime import datetime, timedelta
 folders = os.listdir("C://Users/jlane/Desktop/Untracked Files/Facebook Downloads/messages/inbox")
 
 groupByWeek = True # Whether to have a column for each week, vs everyday
-isMovingAverage = False # Whether to implement a moving average
+isMovingAverage = True # Whether to implement a moving average
 movingAveCount = 104 # How many columns to include in calculating the moving average
-withGroupChats = False # Whether to include group chats
+withGroupChats = True # Whether to include group chats
 
 globalStartDate = None # The date of the earliest message out of every conversation
 nowDate = datetime.now().date() # The current date
@@ -56,10 +56,10 @@ def parseConvo(data):
     messageTotalsByDate = [] # Array showing number of total messages at each day
     messageCounter = 0 # Increments each time we read another message
     movAgeMessageCounter = 0 # Increments each time we read another message which is "expired" given a moving average
-    while (iterDate <= nowDate and messageCounter < len(messages)):
+    while (iterDate <= nowDate):
         while (messageCounter < len(messages) and getDayFromTime(messages[messageCounter]['timestamp_ms']) == iterDate):
             messageCounter += 1
-        while (isMovingAverage and 
+        while (isMovingAverage and movAgeMessageCounter < len(messages) and
             getDayFromTime(messages[movAgeMessageCounter]['timestamp_ms']) == 
             iterDate - timedelta(days=(7 if groupByWeek else 1)*movingAveCount)):
             movAgeMessageCounter += 1
